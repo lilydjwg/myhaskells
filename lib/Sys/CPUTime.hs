@@ -1,4 +1,4 @@
-module Sys.Time (
+module Sys.CPUTime (
   timeit,
 ) where
 
