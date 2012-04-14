@@ -3,7 +3,7 @@ import Control.Concurrent (threadDelay)
 import Data.List
 import Data.List.Split (endBy)
 import Data.Maybe
-import Data.Time (formatTime, getCurrentTime)
+import Data.Time (formatTime, getZonedTime)
 import Network.Browser
 import Network.HTTP
 import Network.URI
@@ -52,4 +52,4 @@ printCurrentTime :: IO ()
 printCurrentTime = curTime >>= putStr >> putChar ' '
 
 curTime :: IO String
-curTime = formatTime defaultTimeLocale "%H:%M:%S" <$> getCurrentTime
+curTime = formatTime defaultTimeLocale "%H:%M:%S" <$> getZonedTime
