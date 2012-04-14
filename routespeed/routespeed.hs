@@ -16,19 +16,22 @@ import Math.Number (filesize)
 url = "http://192.168.1.1/userRpm/StatusRpm.htm"
 auth = AuthBasic "" "admin" "admin" (fromJust $ parseURI "http://192.168.1.1/")
 
-main = httpreq >>= printSpeed >> main
+main = httpreq >>= loop
+  where loop a = printSpeed a >>= loop
 
-printSpeed :: [Integer] -> IO ()
+printSpeed :: [Integer] -> IO [Integer]
 printSpeed a = do
   threadDelay (1 * 1000 * 1000)
   printCurrentTime
-  getSpeed a >>= putStrLn . concat . (intersperse ", ") . (map ((++ "/s") . (printf "%8s") . filesize))
+  (b, c) <- getSpeed a
+  putStrLn . concat . (intersperse ", ") . (map ((++ "/s") . (printf "%8s") . filesize)) $ c
+  return b
 
-getSpeed :: [Integer] -> IO [Integer]
+getSpeed :: [Integer] -> IO ([Integer], [Integer])
 getSpeed a = do
   b <- httpreq
   let c = zipWith (-) b a
-  return c
+  return (b, c)
 
 httpreq :: IO [Integer]
 httpreq = do 
