@@ -1,0 +1,12 @@
+*.hi
+acpi_handler/main
+cat/cat
+expand/expand
+fcitx-switch-quote/fcitx-switch-quote
+lib/Text/Lrc
+nl/nl
+packagestat/packagestat
+packagestat/packagestat_lazy
+packagestat/pkgs
+routespeed/routespeed
+sendmail/sendmail
