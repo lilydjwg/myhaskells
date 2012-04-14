@@ -6,7 +6,7 @@ import Data.Maybe
 import Data.Time (formatTime, getZonedTime)
 import Network.Browser
 import Network.HTTP
-import Network.URI
+import Network.URI (parseURI)
 import System.Locale (defaultTimeLocale)
 import Text.Printf (printf)
 
@@ -21,10 +21,10 @@ main = httpreq >>= loop
 
 printSpeed :: [Integer] -> IO [Integer]
 printSpeed a = do
-  threadDelay (1 * 1000 * 1000)
-  printCurrentTime
+  threadDelay $ 1 * 1000 * 1000
   (b, c) <- getSpeed a
-  putStrLn . concat . (intersperse ", ") . (map ((++ "/s") . (printf "%8s") . filesize)) $ c
+  printCurrentTime
+  putStrLn . concat . intersperse ", " . map ((++ "/s") . printf "%8s" . filesize) $ c
   return b
 
 getSpeed :: [Integer] -> IO ([Integer], [Integer])
@@ -35,18 +35,18 @@ getSpeed a = do
 
 httpreq :: IO [Integer]
 httpreq = do 
-  rsp <- Network.Browser.browse $ do
+  rsp <- browse $ do
     setAllowRedirects True
     addAuthority auth
-    setOutHandler $ const (return ())
+    setOutHandler $ const $ return ()
     request $ getRequest url
   return $ getBytes $ rspBody $ snd rsp
 
 getBytes :: String -> [Integer]
-getBytes = (take 2) . (map (fromJust.parseInt)) . (endBy ", ") . getDataLine
+getBytes = take 2 . map (fromJust . parseInt) . endBy ", " . getDataLine
 
 getDataLine :: String -> String
-getDataLine = (!!1) . (dropWhile (not.(isPrefixOf "var statistList"))) . lines
+getDataLine = (!!1) . (dropWhile (not . isPrefixOf "var statistList")) . lines
 
 printCurrentTime :: IO ()
 printCurrentTime = curTime >>= putStr >> putChar ' '
