@@ -6,7 +6,7 @@ module Math.Number (
 import Text.Printf (printf)
 
 nrWidth :: Integral a => a -> a
-nrWidth = ceiling . (logBase 10) . fromIntegral
+nrWidth = ceiling . logBase 10 . fromIntegral
 
 filesize :: (Integral a, Show a) => a -> String
 filesize n = 
