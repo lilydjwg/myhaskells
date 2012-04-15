@@ -10,3 +10,5 @@ packagestat/packagestat_lazy
 packagestat/pkgs
 routespeed/routespeed
 sendmail/sendmail
+locatewrapper/l
+locatewrapper/lre
