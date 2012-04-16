@@ -35,8 +35,8 @@ doLocate = do
   args' <- getArgs
   let args'' = args ++ args'
   (_, Just out, _, p) <- createProcess (proc "locate" args''){ std_in = Inherit,
-                                                          std_out = CreatePipe,
-                                                          std_err = Inherit }
+                                                               std_out = CreatePipe,
+                                                               std_err = Inherit }
   hSetBuffering out LineBuffering
   (,) <$> hGetContents out <*> return p
 
