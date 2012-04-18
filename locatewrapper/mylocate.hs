@@ -1,7 +1,3 @@
--- TODO: be lazy
---       handle failed (nothing found)
---       use argv0 to determine which to use
-
 import Control.Applicative ((<*>), (<$>))
 import Control.Monad.Instances
 import Data.List (isPrefixOf)
