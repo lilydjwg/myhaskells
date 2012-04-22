@@ -15,6 +15,7 @@ import System.Process (
   StdStream(..),
   )
 
+import Control.Function (applyEither)
 import Text.String (dropPrefix)
 
 main = do
@@ -40,16 +41,10 @@ transform :: String -> String
 transform = unlines . map transformLine . lines
 
 transformLine :: String -> String
-transformLine s = case apply funcs s of
-                     Left r -> '~' : r
-                     Right r -> r
+transformLine s = case applyEither funcs s of
+                     Left r -> r
+                     Right r -> '~' : r
   where funcs = map dropPrefix prefixesToHome
-
-apply :: [(a -> Either a a)] -> a -> Either a a
-apply (f:fs) d = case f d of
-                      Left s -> apply fs s
-                      Right s -> Left s
-apply [] d = Right d
 
 prefixesToHome :: [String]
 prefixesToHome = ["/home/.ecryptfs/lilydjwg/public", "/home/lilydjwg"]
