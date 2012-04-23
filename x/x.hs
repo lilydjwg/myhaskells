@@ -48,14 +48,14 @@ extract' f = do
 moveUpwardsAndDelete :: FilePath -> FilePath -> IO ()
 moveUpwardsAndDelete d f = do
   setCurrentDirectory ".."
-  del' <- if d == f
+  todel <- if d == f
              then do let d' = d ++ tmpSuffix
-                         f' = d' ++ "/" ++ f
                      renameDirectory d d'
-                     renameDirectory f' f
                      return d'
              else return d
-  removeDirectory del'
+  let f' = todel </> f
+  renameDirectory f' f
+  removeDirectory todel
 
 tmpSuffix = "._._."
 

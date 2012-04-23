@@ -1,5 +1,4 @@
 module Control.Function (
-  applyEither,
   applyMaybe,
   applyUntil,
   applyUntilM,
