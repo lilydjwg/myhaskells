@@ -7,11 +7,6 @@ module Control.Function (
 
 import Data.Maybe (isJust)
 
--- |Applies a list of functions until one returns a Right value and returns it,
--- or returns a Left value if no Right
-applyEither :: [(a -> Either a a)] -> a -> Either a a
-applyEither = applyUntil isRight
-
 -- |Applies a list of functions until a Just value is got
 applyMaybe :: [(a -> Maybe b)] -> a -> Maybe b
 applyMaybe = applyUntil isJust

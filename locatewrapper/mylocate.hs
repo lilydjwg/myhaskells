@@ -15,8 +15,7 @@ import System.Process (
   StdStream(..),
   )
 
-import Control.Function (applyEither)
-import Text.String (dropPrefix)
+import List.List (lookupWith)
 
 main = do
   (out, p) <- doLocate
@@ -41,10 +40,15 @@ transform :: String -> String
 transform = unlines . map transformLine . lines
 
 transformLine :: String -> String
-transformLine s = case applyEither funcs s of
-                     Left r -> r
-                     Right r -> '~' : r
-  where funcs = map dropPrefix prefixesToHome
+transformLine s = case lookupWith (`isPrefixOf` s) prefixesMap of
+  Just (p, r) -> r ++ drop (length p) s
+  Nothing -> s
 
-prefixesToHome :: [String]
-prefixesToHome = ["/home/.ecryptfs/lilydjwg/public", "/home/lilydjwg"]
+prefixesMap :: [(String, String)]
+prefixesMap = [
+  ("/home/lilydjwg", "~"),
+  ("/home/.ecryptfs/lilydjwg/public/aMule", "~/.aMule"),
+  ("/home/.ecryptfs/lilydjwg/public/goldendict", "~/.goldendict/goldendict"),
+  ("/home/.ecryptfs/lilydjwg/public/VirtualBox", "~/.VirtualBox"),
+  ("/home/.ecryptfs/lilydjwg/public", "~")
+  ]
