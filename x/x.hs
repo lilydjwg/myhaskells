@@ -12,7 +12,12 @@ import System.Directory (
   )
 import System.Environment (getArgs)
 import System.Exit (exitWith, ExitCode(ExitFailure))
-import System.FilePath ((</>))
+import System.FilePath (
+  (</>),
+  splitFileName,
+  dropExtension,
+  takeExtension,
+  )
 import System.Process (readProcess)
 
 import Control.Function (applyUntilM)
@@ -21,7 +26,7 @@ main = getArgs >>= mapM_ extract
 
 extract :: FilePath -> IO ()
 extract f = do
-  let d = stripSuffix f
+  let d = snd $ splitFileName $ stripSuffix f
   createDirectoryIfMissing False d
   setCurrentDirectory d
   exit <- extract' $ ".." </> f
@@ -42,15 +47,11 @@ extract' f = do
 
 moveUpwardsAndDelete :: FilePath -> FilePath -> IO ()
 moveUpwardsAndDelete d f = do
-  print "deleting"
-  print (d, f)
   setCurrentDirectory ".."
   del' <- if d == f
              then do let d' = d ++ tmpSuffix
                          f' = d' ++ "/" ++ f
-                     print (d, d')
                      renameDirectory d d'
-                     print (f', f)
                      renameDirectory f' f
                      return d'
              else return d
@@ -59,9 +60,9 @@ moveUpwardsAndDelete d f = do
 tmpSuffix = "._._."
 
 stripSuffix :: FilePath -> String
-stripSuffix = stripTar . reverse . tail . dropWhile (/='.') . reverse
-  where stripTar p = if ".tar" `isSuffixOf` p
-                        then take (length p - 4) p
+stripSuffix = stripTar . dropExtension
+  where stripTar p = if takeExtension p == ".tar"
+                        then dropExtension p
                         else p
 
 getCmdForFile :: FilePath -> IO (Maybe [String])
