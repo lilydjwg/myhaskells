@@ -70,7 +70,7 @@ getCmdForFile = applyUntilM isJust [checkTar, checkRar, checkZip, check7z]
 
 checkTar, checkRar, checkZip, check7z :: FilePath -> IO (Maybe [String])
 checkTar f | any (`isSuffixOf` f) [".tar.gz", ".tar.xz", ".tar.bz2",
-                                   ".tgz", ".txz", ".tbz"]
+                                   ".tgz", ".txz", ".tbz", ".tar"]
                                      = return $ Just ["tar", "xvf"]
            | otherwise = return Nothing
 

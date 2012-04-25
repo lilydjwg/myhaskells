@@ -4,9 +4,6 @@ module Math.Compute (
   factorial,
 ) where
 
-import Control.Monad
-import Control.Monad.Instances
-
 isPrime :: Integral a => a -> Bool
 primes :: Integral a => [a]
 isPrime x = let prime_useful = takeWhile (\y -> y*y <= x) primes
