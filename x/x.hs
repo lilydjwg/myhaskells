@@ -5,6 +5,7 @@ import Data.Maybe (isJust, fromJust)
 import System.Cmd (rawSystem)
 import System.Directory (
   createDirectoryIfMissing,
+  doesDirectoryExist,
   renameDirectory,
   getDirectoryContents,
   setCurrentDirectory,
@@ -31,8 +32,10 @@ extract f = do
   setCurrentDirectory d
   exit <- extract' $ ".." </> f
   files <- getDirectoryContents "."
-  if length files == 3
-     then moveUpwardsAndDelete d $ last files
+  let lastFile = last files
+  singleIsDir <- doesDirectoryExist lastFile
+  if length files == 3 && singleIsDir
+     then moveUpwardsAndDelete d lastFile
      else return ()
   case exit of
     ExitFailure _ -> exitWith exit
