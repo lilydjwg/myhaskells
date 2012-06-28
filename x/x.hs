@@ -7,6 +7,7 @@ import System.Directory (
   createDirectoryIfMissing,
   doesDirectoryExist,
   renameDirectory,
+  renameFile,
   getDirectoryContents,
   setCurrentDirectory,
   removeDirectory,
@@ -32,10 +33,8 @@ extract f = do
   setCurrentDirectory d
   exit <- extract' $ ".." </> f
   files <- getDirectoryContents "."
-  let lastFile = last files
-  singleIsDir <- doesDirectoryExist lastFile
-  if length files == 3 && singleIsDir
-     then moveUpwardsAndDelete d lastFile
+  if length files == 3
+     then moveUpwardsAndDelete d $ last files
      else return ()
   case exit of
     ExitFailure _ -> exitWith exit
@@ -57,7 +56,8 @@ moveUpwardsAndDelete d f = do
                      return d'
              else return d
   let f' = todel </> f
-  renameDirectory f' f
+  isdir <- doesDirectoryExist f'
+  (if isdir then renameDirectory else renameFile) f' f
   removeDirectory todel
 
 tmpSuffix = "._._."
