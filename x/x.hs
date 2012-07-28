@@ -69,9 +69,9 @@ stripSuffix = stripTar . dropExtension
                         else p
 
 getCmdForFile :: FilePath -> IO (Maybe [String])
-getCmdForFile = applyUntilM isJust [checkTar, checkRar, checkZip, check7z]
+getCmdForFile = applyUntilM isJust [checkTar, checkRar, checkZipGB, check7z, checkZip]
 
-checkTar, checkRar, checkZip, check7z :: FilePath -> IO (Maybe [String])
+checkTar, checkRar, checkZip, checkZipGB, check7z :: FilePath -> IO (Maybe [String])
 checkTar f | any (`isSuffixOf` f) [".tar.gz", ".tar.xz", ".tar.bz2",
                                    ".tgz", ".txz", ".tbz", ".tar"]
                                      = return $ Just ["tar", "xvf"]
@@ -82,7 +82,8 @@ checkRar f | ".rar" `isSuffixOf` f = do
   return $ Just $ if "Win32" `isInfixOf` t then ["7z", "x"] else ["rar", "x"]
            | otherwise = return Nothing
 
-checkZip = return . suffix ".zip" ["gbkunzip"]
+checkZipGB = return . suffix ".zip" ["gbkunzip"]
+checkZip = return . suffix ".xpi" ["unzip"]
 check7z = return . suffix ".7z" ["7z", "x"]
 
 suffix :: String -> [String] -> FilePath -> Maybe [String]
