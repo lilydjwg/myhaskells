@@ -34,11 +34,15 @@ extract f = do
   exit <- extract' $ ".." </> f
   files <- getDirectoryContents "."
   if length files == 3
-     then moveUpwardsAndDelete d $ last files
+     then moveUpwardsAndDelete d $ head $ filter notRegularDir files
      else return ()
   case exit of
     ExitFailure _ -> exitWith exit
     otherwise -> return ()
+
+notRegularDir "." = False
+notRegularDir ".." = False
+notRegularDir _ = True
 
 extract' :: FilePath -> IO ExitCode
 extract' f = do
