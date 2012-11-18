@@ -76,21 +76,21 @@ getCmdForFile :: FilePath -> IO (Maybe [String])
 getCmdForFile = applyUntilM isJust [checkTar, checkRar, checkZipGB, check7z, checkZip]
 
 checkTar, checkRar, checkZip, checkZipGB, check7z :: FilePath -> IO (Maybe [String])
-checkTar f | any (`isSuffixOf` f) [".tar.gz", ".tar.xz", ".tar.bz2",
-                                   ".tgz", ".txz", ".tbz", ".tar"]
-                                     = return $ Just ["tar", "xvf"]
-           | otherwise = return Nothing
+
+checkTar = return . anySuffix [".tar.gz", ".tar.xz", ".tar.bz2", ".tgz", ".txz", ".tbz", ".tar"] ["tar", "xvf"]
+check7z = return . anySuffix [".7z", ".chm"] ["7z", "x"]
 
 checkRar f | ".rar" `isSuffixOf` f = do
   t <- readProcess "file" [f] ""
   return $ Just $ if "Win32" `isInfixOf` t then ["7z", "x"] else ["rar", "x"]
            | otherwise = return Nothing
 
-check7z f | any (`isSuffixOf` f) [".7z", ".chm"] = return $ Just ["7z", "x"]
-          | otherwise = return Nothing
-
 checkZipGB = return . suffix ".zip" ["gbkunzip"]
 checkZip = return . suffix ".xpi" ["unzip"]
 
 suffix :: String -> [String] -> FilePath -> Maybe [String]
 suffix suf cmd f = if suf `isSuffixOf` f then Just cmd else Nothing
+
+anySuffix :: [String] -> [String] -> FilePath -> Maybe [String]
+anySuffix suffixes cmd f | any (`isSuffixOf` f) suffixes = Just cmd
+                         | otherwise = Nothing
