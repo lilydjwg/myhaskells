@@ -5,6 +5,7 @@ import Data.Maybe (fromJust)
 import System.Environment (getArgs, getProgName)
 import System.Exit (exitWith)
 import System.IO (hGetContents, hSetBuffering, BufferMode(LineBuffering))
+import System.Posix.Terminal (queryTerminal)
 import System.Process (
   proc,
   createProcess,
@@ -19,7 +20,8 @@ import List.List (lookupWith)
 
 main = do
   (out, p) <- doLocate
-  putStr $ transform out
+  isatty <- queryTerminal 1
+  putStr $ (if isatty then transform else id) out
   waitForProcess p >>= exitWith
 
 doLocate :: IO (String, ProcessHandle)
