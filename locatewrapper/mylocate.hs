@@ -29,7 +29,9 @@ doLocate = do
   argv0 <- getProgName
   let args = case argv0 of
                   "lre" -> ["-b", "--regex"]
-                  _ -> []
+                  "lrew" -> ["--regex"]
+                  "l" -> []
+                  _ -> error $ "I'm not " ++ argv0 ++ "."
   args' <- getArgs
   let args'' = args ++ args'
   (_, Just out, _, p) <- createProcess (proc "locate" args''){ std_in = Inherit,
