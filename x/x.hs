@@ -31,7 +31,7 @@ extract f = do
   let d = snd $ splitFileName $ stripSuffix f
   createDirectoryIfMissing False d
   setCurrentDirectory d
-  exit <- extract' $ ".." </> f
+  exit <- extract' f
   files <- getDirectoryContents "."
   if length files == 3
      then moveUpwardsAndDelete d $ head $ filter notRegularDir files
@@ -46,10 +46,11 @@ notRegularDir _ = True
 
 extract' :: FilePath -> IO ExitCode
 extract' f = do
-  cmd <- getCmdForFile f
+  let f' = ".." </> f
+  cmd <- getCmdForFile f'
   if isJust cmd
-     then let cmd':args = fromJust cmd in rawSystem cmd' (args ++ [f])
-     else exitWith $ ExitFailure $ negate 1
+     then let cmd':args = fromJust cmd in rawSystem cmd' (args ++ [f'])
+     else putStrLn ("no idea to extract file: " ++ f) >> (exitWith $ ExitFailure 21)
 
 moveUpwardsAndDelete :: FilePath -> FilePath -> IO ()
 moveUpwardsAndDelete d f = do
