@@ -8,8 +8,10 @@ LDFLAGS=
 	$(CC) $(CFLAGS) $<
 	strip $@
 
-all: locatewrapper/mylocate fcitx-switch-quote/fcitx-switch-quote \
+bins=locatewrapper/mylocate fcitx-switch-quote/fcitx-switch-quote \
   routespeed/routespeed x/x sendmail/sendmail swapview/swapview
 
+all: $(bins)
+
 clean:
-	-rm */*.o */*.hi
+	-rm -f */*.o */*.hi $(bins)
