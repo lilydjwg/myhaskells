@@ -1,5 +1,5 @@
 import Control.Applicative ((<$>))
-import Control.Monad (mapM_)
+import Control.Monad (mapM_, when)
 import Data.List (isSuffixOf, isInfixOf)
 import Data.Maybe (isJust, fromJust)
 import System.Cmd (rawSystem)
@@ -33,9 +33,8 @@ extract f = do
   setCurrentDirectory d
   exit <- extract' f
   files <- getDirectoryContents "."
-  if length files == 3
-     then moveUpwardsAndDelete d $ head $ filter notRegularDir files
-     else return ()
+  when (length files == 3) $
+     moveUpwardsAndDelete d $ head $ filter notRegularDir files
   case exit of
     ExitFailure _ -> exitWith exit
     otherwise -> return ()
@@ -50,7 +49,7 @@ extract' f = do
   cmd <- getCmdForFile f'
   if isJust cmd
      then let cmd':args = fromJust cmd in rawSystem cmd' (args ++ [f'])
-     else putStrLn ("no idea to extract file: " ++ f) >> (exitWith $ ExitFailure 21)
+     else putStrLn ("no idea to extract file: " ++ f) >> exitWith (ExitFailure 21)
 
 moveUpwardsAndDelete :: FilePath -> FilePath -> IO ()
 moveUpwardsAndDelete d f = do
