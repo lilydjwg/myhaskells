@@ -2,6 +2,8 @@ module Control.Function (
   applyMaybe,
   applyUntil,
   applyUntilM,
+  mapFst,
+  mapSnd,
 ) where
 
 import Data.Maybe (isJust)
@@ -25,3 +27,9 @@ applyUntilM p (f:fs) a = do
 isRight :: Either a b -> Bool
 isRight (Left _) = False
 isRight (Right _) = True
+
+mapFst :: (a -> b) -> (a, c) -> (b, c)
+mapFst f (a, b) = (f a, b)
+
+mapSnd :: (a -> b) -> (c, a) -> (c, b)
+mapSnd f (a, b) = (a, f b)

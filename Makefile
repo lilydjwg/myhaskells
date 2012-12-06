@@ -9,7 +9,7 @@ LDFLAGS=
 	strip $@
 
 all: locatewrapper/mylocate fcitx-switch-quote/fcitx-switch-quote \
-  routespeed/routespeed x/x sendmail/sendmail
+  routespeed/routespeed x/x sendmail/sendmail swapview/swapview
 
 clean:
 	-rm */*.o */*.hi

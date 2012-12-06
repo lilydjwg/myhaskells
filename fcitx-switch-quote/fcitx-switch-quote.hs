@@ -4,11 +4,11 @@ import System.Directory (getHomeDirectory)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
-import Text.String (trChar)
+import Text.String (trSingle)
 
 main = do
   file <- getFile
-  TIO.readFile file >>= (TIO.writeFile file) . (T.map (trChar "“”‘’『』「」" "『』「」“”‘’"))
+  TIO.readFile file >>= (TIO.writeFile file) . (T.map (trSingle "“”‘’『』「」" "『』「」“”‘’"))
   reloadFcitx
 
 getFile :: IO FilePath
