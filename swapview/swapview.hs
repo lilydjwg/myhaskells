@@ -22,7 +22,7 @@ printHeader = putStrLn $ printf format "PID" "SWAP" "COMMAND"
 
 pids :: IO [Pid]
 pids = filter digitOnly <$> getDirectoryContents "/proc"
-  where digitOnly = and . map (`elem` ['0'..'9'])
+  where digitOnly = all (`elem` ['0'..'9'])
 
 swapused :: Pid -> IO Int
 swapused pid = sum . map getNumber . filter (isPrefixOf "Swap:") . lines <$> readFile ("/proc/" ++ pid ++ "/smaps")
