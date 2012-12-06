@@ -16,13 +16,23 @@ import Text.String (trChar)
 type Pid = String
 
 format = "%5s %9s %s" 
+totalStr = "Total:  "
 
-printHeader :: IO ()
-printHeader = putStrLn $ printf format "PID" "SWAP" "COMMAND"
+main = do
+  d <- mapM swapusedWithPid =<< pids
+  let printResult r = do
+        putStrLn $ printf format "PID" "SWAP" "COMMAND"
+        putStr . unlines $ r
+        putStrLn $ (++) totalStr $ filesize $ (* 1024) $ total d
+  printResult =<< mapM formatResult (transformData d)
+    where swapused' p = swapused p `catch` handler
+          handler :: SomeException -> IO Int
+          handler e = return 0
+          swapusedWithPid p = liftM2 (,) (return p) $ swapused' p
 
 pids :: IO [Pid]
-pids = filter digitOnly <$> getDirectoryContents "/proc"
-  where digitOnly = all (`elem` ['0'..'9'])
+pids = filter digitsOnly <$> getDirectoryContents "/proc"
+  where digitsOnly = all (`elem` ['0'..'9'])
 
 swapused :: Pid -> IO Int
 swapused pid = sum . map getNumber . filter (isPrefixOf "Swap:") . lines <$> readFile ("/proc/" ++ pid ++ "/smaps")
@@ -32,19 +42,13 @@ transformData :: [(Pid, Int)] -> [(Pid, String)]
 transformData = map (mapSnd humanSize) . sortBy (compare `on` snd) . filter ((/=) 0 . snd)
   where humanSize = filesize . (* 1024)
 
-getCommand :: Pid -> IO String
-getCommand pid = trChar '\0' ' ' <$> readFile ("/proc/" ++ pid ++ "/cmdline")
-
 formatResult :: (Pid, String) -> IO String
 formatResult (pid, size) = do
   cmd <- getCommand pid
   return $ printf format pid size cmd
 
-main = pids >>= mapM swapusedWithPid >>= mapM formatResult . transformData >>= printResult
-  where swapused' p = swapused p `catch` handler
-        handler :: SomeException -> IO Int
-        handler e = return 0
-        swapusedWithPid p = liftM2 (,) (return p) $ swapused' p
-        printResult r = do
-          printHeader
-          putStr . unlines $ r
+getCommand :: Pid -> IO String
+getCommand pid = trChar '\0' ' ' <$> readFile ("/proc/" ++ pid ++ "/cmdline")
+
+total :: [(Pid, Int)] -> Int
+total = sum . map snd
