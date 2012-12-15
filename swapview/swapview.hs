@@ -16,14 +16,14 @@ import Text.String (trChar)
 type Pid = String
 
 format = "%5s %9s %s" 
-totalStr = "Total:  "
+totalFmt = "Total: %8s"
 
 main = do
   d <- mapM swapusedWithPid =<< pids
   let printResult r = do
         putStrLn $ printf format "PID" "SWAP" "COMMAND"
         putStr . unlines $ r
-        putStrLn $ (++) totalStr $ filesize $ (* 1024) $ total d
+        putStrLn $ printf totalFmt $ filesize $ (* 1024) $ total d
   printResult =<< mapM formatResult (transformData d)
     where swapused' p = swapused p `catch` handler
           handler :: SomeException -> IO Int
