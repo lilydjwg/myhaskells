@@ -15,7 +15,7 @@ import Text.String (trChar)
 
 type Pid = String
 
-format = "%5s %9s %s" 
+format = "%5s %9s %s"
 totalFmt = "Total: %8s"
 
 main = do
