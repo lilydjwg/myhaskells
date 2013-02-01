@@ -86,7 +86,7 @@ checkRar f | ".rar" `isSuffixOf` f = do
            | otherwise = return Nothing
 
 checkZipGB = return . suffix ".zip" ["gbkunzip"]
-checkZip = return . anySuffix [".xpi", ".jar", ".maff"] ["unzip"]
+checkZip = return . anySuffix [".xpi", ".jar", ".apk", ".maff"] ["unzip"]
 
 suffix :: String -> [String] -> FilePath -> Maybe [String]
 suffix suf cmd f = if suf `isSuffixOf` f then Just cmd else Nothing
