@@ -9,7 +9,8 @@ LDFLAGS=
 	strip $@
 
 bins=locatewrapper/mylocate fcitx-switch-quote/fcitx-switch-quote \
-  routespeed/routespeed x/x sendmail/sendmail swapview/swapview
+  routespeed/routespeed x/x sendmail/sendmail swapview/swapview \
+  pyindent_finder/pyindent_finder
 
 all: $(bins)
 
