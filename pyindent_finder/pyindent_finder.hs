@@ -1,5 +1,5 @@
 import Prelude hiding (lex)
-import System.IO (hPutStrLn, stderr)
+import System.IO (hPrint, stderr)
 import Language.Python.Common.SrcLocation (span_column)
 import Language.Python.Common.Token (Token(IndentToken), token_span)
 import Language.Python.Version3 (lex)
@@ -15,5 +15,5 @@ minIndent = flip (-) 1 . minimumOr5 . map (span_column . token_span) . filter is
   where isIndentToken (IndentToken _) = True
         isIndentToken _ = False
 
-main = getContents >>= either showErr (print . minIndent) . (flip lex "<stdin>")
-  where showErr = hPutStrLn stderr . show
+main = getContents >>= either showErr (print . minIndent) . (`lex` "<stdin>")
+  where showErr = hPrint stderr . show
