@@ -13,11 +13,11 @@ bins=locatewrapper/mylocate fcitx-switch-quote/fcitx-switch-quote \
   pyindent_finder/pyindent_finder \
   swapview/swapviewml
 
+all: $(bins)
+
 swapview/swapviewml: swapview/swapview.ml
 	ocamlopt str.cmxa $< -o $@
 	strip $@
-
-all: $(bins)
 
 clean:
 	-rm -f */*.o */*.hi $(bins)
