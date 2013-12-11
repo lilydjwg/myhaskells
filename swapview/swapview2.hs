@@ -70,7 +70,7 @@ transformData = map (\ (X p x) -> X p (humanSize x)) .
 formatResult :: X String -> IO String
 formatResult (X pid size) = do
   cmd <- getCommand pid
-  return $ printf format (T.unpack pid) size (T.unpack $ cmd)
+  return $ printf format (T.unpack pid) size (T.unpack cmd)
 
 getCommand :: Pid -> IO T.Text
 getCommand pid = T.init <$> T.map transnul <$> T.readFile (T.unpack $ "/proc/" `T.append` pid `T.append` "/cmdline")
