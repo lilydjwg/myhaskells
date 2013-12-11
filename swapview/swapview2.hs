@@ -20,10 +20,6 @@ import Math.Number (filesize)
 -- filesize = show
 
 type Pid = T.Text
-data X a = X {
-  _1 :: !Pid,
-  _2 :: !a
-}
 
 format :: String
 format = "%5s %9s %s"
@@ -37,16 +33,18 @@ cmdTitl :: String
 cmdTitl = "COMMAND"
 
 main = do
-  d <- mapM swapusedWithPid =<< pids
-  r <- mapM formatResult (transformData d)
+  ps <- pids
+  ss <- mapM swapusedNoExcept ps
+  let !t = 1024 * sum ss
+  r <- mapM formatResult (transformData (zip ps ss))
   let printResult = do
         putStrLn $ printf format pidTitl swapTitl cmdTitl
         putStr . unlines $ r
-        putStrLn $ printf totalFmt $ filesize $! 1024 * total d
+        putStrLn $ printf totalFmt $ filesize t
   printResult
-    where swapusedWithPid !p = do
+    where swapusedNoExcept !p = do
               su <- catch (swapused p) (\(_::SomeException) -> return 0)
-              return $! X p su
+              return $! su
 
 pids :: IO [Pid]
 pids = filter digitsOnly . map T.pack <$> getDirectoryContents "/proc"
@@ -61,14 +59,14 @@ swapused pid = sum . map getNumber . filter (T.isPrefixOf "Swap:") . T.lines <$>
                    (Right (n, _)) -> n
                    (Left _) -> 0
 
-transformData :: [X Int] -> [X String]
-transformData = map (\ (X p x) -> X p (humanSize x)) . 
-                sortBy (\ (X _ x) (X _ y) -> compare x y) .
-                filter ((/=) 0 . _2)
+transformData :: [(Pid, Int)] -> [(Pid, String)]
+transformData = map (second humanSize) . 
+                sortBy (\ (_, !x) (_, !y) -> compare x y) .
+                filter ((/=) 0 . snd)
   where humanSize = filesize . (* 1024)
 
-formatResult :: X String -> IO String
-formatResult (X pid size) = do
+formatResult :: (Pid, String) -> IO String
+formatResult (pid, size) = do
   cmd <- getCommand pid
   return $ printf format (T.unpack pid) size (T.unpack cmd)
 
@@ -76,5 +74,3 @@ getCommand :: Pid -> IO T.Text
 getCommand pid = T.init <$> T.map transnul <$> T.readFile (T.unpack $ "/proc/" `T.append` pid `T.append` "/cmdline")
   where transnul ch = if ch == '\0' then ' ' else ch
 
-total :: [X Int] -> Int
-total = sum . map _2
