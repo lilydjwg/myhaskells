@@ -1,8 +1,7 @@
 import Control.Applicative ((<$>))
 import Control.Monad (mapM_, when)
 import Data.List (isSuffixOf, isInfixOf)
-import Data.Maybe (isJust, fromJust)
-import System.Cmd (rawSystem)
+import Data.Maybe (isJust, fromJust, isNothing)
 import System.Directory (
   createDirectoryIfMissing,
   doesDirectoryExist,
@@ -20,7 +19,7 @@ import System.FilePath (
   dropExtension,
   takeExtension,
   )
-import System.Process (readProcess)
+import System.Process (createProcess, proc, readProcess, waitForProcess)
 
 import Control.Function (applyUntilM)
 
@@ -29,9 +28,12 @@ main = getArgs >>= mapM_ extract
 extract :: FilePath -> IO ()
 extract f = do
   let d = snd $ splitFileName $ stripSuffix f
+  cmd <- getCmdForFile f
+  when (isNothing cmd) $
+     putStrLn ("no idea to extract file: " ++ f) >> exitWith (ExitFailure 21)
   createDirectoryIfMissing False d
   setCurrentDirectory d
-  exit <- extract' f
+  exit <- extract' f $ fromJust cmd
   files <- getDirectoryContents "."
   when (length files == 3) $
      moveUpwardsAndDelete d $ head $ filter notRegularDir files
@@ -43,13 +45,11 @@ notRegularDir "." = False
 notRegularDir ".." = False
 notRegularDir _ = True
 
-extract' :: FilePath -> IO ExitCode
-extract' f = do
+extract' :: FilePath -> [String] -> IO ExitCode
+extract' f (cmd:args) = do
   let f' = ".." </> f
-  cmd <- getCmdForFile f'
-  if isJust cmd
-     then let cmd':args = fromJust cmd in rawSystem cmd' (args ++ [f'])
-     else putStrLn ("no idea to extract file: " ++ f) >> exitWith (ExitFailure 21)
+  waitForProcess =<< fmap fourth (createProcess $ proc cmd (args ++ [f']))
+  where fourth (_, _, _, x) = x
 
 moveUpwardsAndDelete :: FilePath -> FilePath -> IO ()
 moveUpwardsAndDelete d f = do
@@ -86,7 +86,7 @@ checkRar f | ".rar" `isSuffixOf` f = do
            | otherwise = return Nothing
 
 checkZipGB = return . suffix ".zip" ["gbkunzip"]
-checkZip = return . anySuffix [".xpi", ".jar", ".apk", ".maff", ".epub", ".crx"] ["unzip"]
+checkZip = return . anySuffix [".xpi", ".jar", ".apk", ".maff", ".epub", ".crx", ".whl"] ["unzip"]
 
 suffix :: String -> [String] -> FilePath -> Maybe [String]
 suffix suf cmd f = if suf `isSuffixOf` f then Just cmd else Nothing
