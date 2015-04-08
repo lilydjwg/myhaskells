@@ -46,9 +46,8 @@ notRegularDir ".." = False
 notRegularDir _ = True
 
 extract' :: FilePath -> [String] -> IO ExitCode
-extract' f (cmd:args) = do
-  let f' = ".." </> f
-  waitForProcess =<< fmap fourth (createProcess $ proc cmd (args ++ [f']))
+extract' f (cmd:args) =
+  waitForProcess =<< fmap fourth (createProcess $ proc cmd (args ++ [".." </> f]))
   where fourth (_, _, _, x) = x
 
 moveUpwardsAndDelete :: FilePath -> FilePath -> IO ()
